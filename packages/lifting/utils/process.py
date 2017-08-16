@@ -32,6 +32,12 @@ __all__ = [
 
 
 def detect_objects_heatmap(heatmap):
+    """
+
+    :param heatmap:
+    :return:
+    """
+
     data = 256 * heatmap
     data_max = filters.maximum_filter(data, 3)
     maxima = (data == data_max)
@@ -89,6 +95,21 @@ def gaussian_heatmap(h, w, pos_x, pos_y, sigma_h=1, sigma_w=1, init=None):
 
 def prepare_input_posenet(image, objects, size_person, size, sigma=25,
                           max_num_objects=16, border=400):
+    """
+    Takes all object coordinates from `objects`, then centers image on each,
+    then overlays with gaussian filter around center
+
+    `result` is a stack of 16 (max_num_objects) of such images (shape is (16, 384, 384, 4)
+
+    :param image:
+    :param objects:
+    :param size_person:
+    :param size:
+    :param sigma:
+    :param max_num_objects:
+    :param border:
+    :return:
+    """
     result = np.zeros((max_num_objects, size[0], size[1], 4))
     padded_image = np.zeros(
         (1, size_person[0] + border, size_person[1] + border, 4))

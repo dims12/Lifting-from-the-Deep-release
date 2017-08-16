@@ -117,11 +117,23 @@ class PoseEstimator(PoseEstimatorInterface):
                            fy=self.scale, interpolation=cv2.INTER_CUBIC)
         b_image = np.array(image[np.newaxis] / 255.0 - 0.5, dtype=np.float32)
 
+        # locates persons on image as heat map
         hmap_person = sess.run(self.heatmap_person_large, {
                                self.image_in: b_image})
 
+        # DEBUG WATCH: import matplotlib; matplotlib.pyplot.imshow(image); matplotlib.pyplot.imshow(hmap_person, alpha=0.5)
+        # hmap_person stores heat spots for each detected person?
         hmap_person = np.squeeze(hmap_person)
+
+
+        # calculates coordinates of persons
+        # centers shape is (3, 2); 3 = number of persons, 2 = person coordinates
         centers = utils.detect_objects_heatmap(hmap_person)
+
+        # prepares stack of person images with gaussian mask overlaid on each
+        # b_pose_image shape is (16, 384, 384, 3) = 16 possible images of persons
+        # b_pose_cmap shapes is (16, 384, 384, 1) = 16 masks (gaussian)
+        # for 3 persons only 3 of 16 filled
         b_pose_image, b_pose_cmap = utils.prepare_input_posenet(
             b_image[0], centers,
             [utils.config.INPUT_SIZE, image.shape[1]],
@@ -131,6 +143,12 @@ class PoseEstimator(PoseEstimatorInterface):
             self.pose_image_in: b_pose_image,
             self.pose_centermap_in: b_pose_cmap
         }
+
+        # detects heatmaps for each joint for each person
+        # _hmap_pose shape is (16, 46, 46, 15)
+        # 16 stands for maximal number of possible persons (only 3 filled for demo image)
+        # 46 x 46 is the dimension of each heatmap
+        # 15 stands for number of joints; although #14 shows something cummulative
         _hmap_pose = sess.run(self.heatmap_pose, feed_dict)
 
         # Estimate 2D poses

@@ -16,6 +16,16 @@ __all__ = ['Prob3dPose']
 class Prob3dPose:
 
     def __init__(self, prob_model_path):
+        """
+
+        mu reshaped from (3,51) to (3,3,17)
+        e reshaped from (3,25,51) to (3,25,3,17)
+        sigma is not reshaped
+        cam is initialized to "onish" matrix
+        :param prob_model_path:
+        """
+
+
         model_param = sio.loadmat(prob_model_path)
         self.mu = np.reshape(
             model_param['mu'], (model_param['mu'].shape[0], 3, -1))

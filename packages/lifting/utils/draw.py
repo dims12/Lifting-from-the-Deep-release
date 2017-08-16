@@ -44,7 +44,18 @@ def draw_limbs(image, pose_2d, visible):
 
 
 def plot_pose(pose):
-    """Plot the 3D pose showing the joint connections."""
+    """
+    Plot the 3D pose showing the joint connections.
+
+    :param pose: arrays of shape (3,L), L=17
+    :return:
+    """
+    """
+    
+    """
+
+
+
     import mpl_toolkits.mplot3d.axes3d as p3
 
     _CONNECTION = [
